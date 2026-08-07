@@ -13,7 +13,7 @@ class User
         BufferedReader br =
         new BufferedReader (new InputStreamReader(System.in,"MS932"));
         String str = br.readLine();
-        System.out.println("Kana:"+str+"、よろしくね！");
+        System.out.println("Kana:" + str + "、よろしくね！");
         System.out.println("Kana:今日も頑張ろう！");
     }
 
