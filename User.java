@@ -7,7 +7,7 @@ class User
 {
     public static void main(String[]args) throws IOException
     {
-        System.out.println("Kana:こんにちは！");
+        System.out.println("Kana:おかえりなさい！");
         System.out.println("Kana:名前を教えてね。");
 
         BufferedReader br =
