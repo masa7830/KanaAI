@@ -15,7 +15,7 @@ class User
         BufferedReader br =
         new BufferedReader (new InputStreamReader(System.in,"MS932"));
       
-        //ユーザー名を追加
+        //ユーザー名を入力してstrに保存
         String str = br.readLine();
 
         System.out.println("Kana:" + str + "、よろしくね！");
@@ -107,31 +107,29 @@ class User
                     //会話内容を文字列として受け取る
                     String talk = br.readLine();
 
-                    //疲れた勉強に反応、それ以外なら相槌
-
+                   //「疲れた」「勉強」を含む入力に反応し、それ以外は相槌を返す
                     if (talk.contains("疲れた")) {
                         System.out.println("Kana:お疲れさま。今日はゆっくりしよ？");
                     }
-                    
                     else if (talk.contains("勉強")) {
                         System.out.println("Kana:勉強したんだ！お疲れさま！");
                     }
-
                     else {
-                        System.out.println("Kana:" + talk + "なんだね");
-                    }
-
+   
+                         System.out.println("Kana:" + talk + "なんだね");
+                    }                                                                                                                                                                                                                                                                                            
                     //会話を続けるか確認
                     System.out.println("Kana:もっと話そう！");
                     System.out.println("Kana:1.もう少し話す");
                     System.out.println("Kana:2.今日は帰る");
 
-                    //1ならもう一周、
+                    //1なら会話を続けて、2ならwhiteを終了する
                     choice = Integer.parseInt(br.readLine());
             }
      }
     
             //終了時のあいさつ
+
             System.out.println("行ってらっしゃい！また来てね！！ばいばーい");
         
             
