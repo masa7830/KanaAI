@@ -112,7 +112,9 @@ class User
                         System.out.println("Kana:お疲れさま。今日はゆっくりしよ？");
                     }
                     else if (talk.contains("勉強")) {
-                        System.out.println("Kana:勉強したんだ！お疲れさま！");
+                        System.out.println("Kana:勉強したんだ！何を勉強したの？");
+                        talk = br.readLine();
+                        System.out.println("Kana:"+talk+"を勉強したんだね！");
                     }
                     else {
    
@@ -123,7 +125,7 @@ class User
                     System.out.println("Kana:1.もう少し話す");
                     System.out.println("Kana:2.今日は帰る");
 
-                    //1なら会話を続けて、2ならwhiteを終了する
+                    //1なら会話を続けて、2ならwhileを終了する
                     choice = Integer.parseInt(br.readLine());
             }
      }
