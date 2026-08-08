@@ -25,10 +25,7 @@ class User
         //キーボードから入力された文字列を整数に変換
         int mood = Integer.parseInt(br.readLine());
 
-        
-
-        while (mood != 1 && mood != 2 && mood != 3){
-
+        while (mood != 1 && mood != 2 && mood != 3) {
 
             System.out.println("Kana:ごめん、よく分からなかった");
             System.out.println("Kana:もう一度選んでね！");
@@ -73,15 +70,48 @@ class User
         }
         else if (choice == 2){
             System.out.println("もうかえっちゃうの!?");
+            System.out.println("Kana:1.やっぱりもう少し話す");
+            System.out.println("Kana:2.うん、今日は帰る");
+
+            choice = Integer.parseInt(br.readLine());
+
+            while (choice != 1 && choice != 2) {
+                System.out.println("Kana:ごめん、よく分からなかった");
+                System.out.println("Kana:もう一度選んでね！");
+                System.out.println("Kana:1.やっぱりもう少し話をする");
+                System.out.println("Kana:2.うん、今日はもう帰る");
+                
+                choice = Integer.parseInt(br.readLine());
+            }
+        }
+            if (choice ==1){
+            
+                 while (choice == 1) {
+          
+
+                    System.out.println("Kana:何を話す？");
+
+                    String talk = br.readLine();
+
+                    System.out.println("Kana:" + talk + "なんだね");
+
+                    System.out.println("Kana:もっと話そう！");
+                    System.out.println("Kana:1.もう少し話す");
+                    System.out.println("Kana:2.今日は帰る");
+
+                    choice = Integer.parseInt(br.readLine());
+            }
+     }
+    
+
             System.out.println("行ってらっしゃい！また来てね！！ばいばーい");
+        
+            
+         
+          
         }
-        else{
-            System.out.println("ごめん、よく分からなかった");
-   
-        }
-
-}
+    }    
 
 
 
-}
+
