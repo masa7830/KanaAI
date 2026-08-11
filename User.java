@@ -1,23 +1,68 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
-
-
+import java.io.FileWriter;
+import java.io.FileReader;
+import java.io.File;
 class User
 {
     public static void main(String[]args) throws IOException
     {
-        //起動のあいさつ
+        //キーボードから入力するための準備
+         BufferedReader br =
+        new BufferedReader (new InputStreamReader(System.in,"MS932"));
+        
+        //user.txtという名前保存用ファイルを扱う
+        File file = new File("user.txt");
+
+         // ユーザー名を入れておく変数
+        String name;
+
+         // user.txtがすでに存在する場合
+        // → 以前Kanaを使ったことがあるユーザー
+        if(file.exists())
+        {
+        // user.txtを読み込む準備
+        FileReader fr = new FileReader("user.txt");
+
+        BufferedReader userReader =
+        new BufferedReader(fr);
+
+         // 保存されている名前を読み込む
+        name = userReader.readLine();
+
+        // 読み込みが終わったのでファイルを閉じる
+            userReader.close();
+
+    
+        System.out.println("Kana:おかえり、" + name + "！");
+
+        userReader.close();
+        }
+
+        // user.txtが存在しない場合
+        // → Kanaを初めて使うユーザー
+        else{
+
         System.out.println("Kana:おかえりなさい！");
         System.out.println("Kana:名前を教えてね。");
+         // 入力された名前をnameに保存
+            name = br.readLine();
 
-        BufferedReader br =
-        new BufferedReader (new InputStreamReader(System.in,"MS932"));
-      
-        //ユーザー名を入力してstrに保存
-        String str = br.readLine();
+            // user.txtへ書き込む準備
+            FileWriter fw = new FileWriter("user.txt");
 
-        System.out.println("Kana:" + str + "、よろしくね！");
+            // 入力された名前をuser.txtへ保存
+            fw.write(name);
+
+            // 書き込み終了
+            fw.close();
+
+            // 初回だけのあいさつ
+            System.out.println("Kana:" + name + "、よろしくね！");
+        }
+
+       
         
         //今日の気分を聞く
         System.out.println("Kana:今日の気分はどう？");
