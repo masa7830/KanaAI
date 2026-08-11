@@ -174,14 +174,17 @@ class User
             }
      }
     
-            //終了時のあいさつ
-
-            System.out.println("行ってらっしゃい！また来てね！！ばいばーい");
-        
-            
-         
-          
+           
+         //mainメソッド終了 
         }
+         //終了時のあいさつ
+
+            static void goodbye()
+    {
+        System.out.println("行ってらっしゃい！また来てね！！ばいばーい");
+    }
+
+    //Userクラス終了
     }    
 
 
