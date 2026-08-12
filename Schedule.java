@@ -12,25 +12,12 @@ class Schedule{
         new BufferedReader(new InputStreamReader(System.in,"MS932"));
 
         
-      
-        String[] schedule = new String[7];
-
-         String[] week = {
-    "月曜日",
-    "火曜日",
-    "水曜日",
-    "木曜日",
-    "金曜日",
-    "土曜日",
-    "日曜日"
-};
+    
 
 
 
     
-        System.out.println("Kana:1.予定を登録する");
-        System.out.println("Kana:2.予定を確認する");
-        System.out.println("Kana:3.終了する");
+       
 
 
         int choice = 0;//choiceを作る
@@ -59,67 +46,37 @@ while (choice != 3)
 
          }// 入力チェックwhile終了
 
-          if (choice ==1){
-    
-        System.out.println("曜日を入力してください");
-          String talk = br.readLine();
+         if (choice == 1)
+{
+    System.out.println("日付を入力してください");
+    System.out.println("例：2026-08-12");
 
-           int i = 0;
+    String date = br.readLine();
 
-        if(talk.contains("月曜日"))
-        {
-        i = 0;
-        }
-       else if(talk.contains("火曜日"))
-       {
-        i = 1;
-       }
-       else if(talk.contains("水曜日"))
-       {
-        i = 2;
-       }
-       else if(talk.contains("木曜日"))
-        {
-        i = 3;
-        }
-        else if(talk.contains("金曜日"))
-        {
-        i = 4;
-        }
-        else if(talk.contains("土曜日"))
-        {   
-        i = 5;
-        }
-        else if(talk.contains("日曜日"))
-        {
-        i = 6;
-        }
-   
+    System.out.println("予定を入力してください");
+    String str = br.readLine();
 
-        System.out.println("予定を入力してください");
-       
-        String str = br.readLine();
+    FileWriter fw =
+        new FileWriter("schedule.txt", true);
 
-        schedule[i] = str;
+    fw.write(
+        date + "," + str + System.lineSeparator()
+    );
 
-        FileWriter fw = new FileWriter("schedule.txt",true);
+    fw.close();
 
-        fw.write(week[i] + "," + schedule[i]+ System.lineSeparator());
+    System.out.println(
+        "Kana:" + date + "の予定として"
+        + str + "を登録したよ！"
+    );
 
-        fw.close();
-        
-       
-    
-    
-
-            System.out.println(week[i] + "の予定は" +schedule[i]+"です。" );
-    }// choice == 1 予定登録終了
+} // choice == 1 予定登録終了
 
         
 else if(choice == 2)
 {
-    System.out.println("Kana:何曜日の予定を確認しますか？");
-    String checkDay = br.readLine();
+    System.out.println("Kana:何日の予定を確認しますか？");
+    String checkDate = br.readLine();
 
     // schedule.txtを読み込む準備
     FileReader fr = new FileReader("schedule.txt");
@@ -132,16 +89,16 @@ else if(choice == 2)
 
     while ((line = userReader.readLine()) != null)
     {
-        // 入力された曜日を含む行だけ表示
-        if (line.contains(checkDay))
+        // 入力された日付を含む行だけ表示
+        if (line.contains(checkDate))
         {
-                 // 「曜日,予定」を「曜日」と「予定」に分ける
+                 // 「日付,予定」を「日付」と「予定」に分ける
         String[] data = line.split(",");
 
         System.out.println(
             "Kana:" + data[0] + "の予定は" + data[1] + "です。"
         );
-    } // 曜日一致if終了
+    } // 日付一致if終了
         }// schedule.txt読み込みwhile終了
 
     // 全ての行を読み終わってから閉じる
