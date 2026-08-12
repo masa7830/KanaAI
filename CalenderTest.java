@@ -17,6 +17,11 @@ class CalendarTest
 {
     public static void main(String[] args)
     {
+        openCalendar();
+    }
+        static void openCalendar(){
+
+        
         JFrame frame = new JFrame("Kana Calendar");
 
         frame.setSize(600, 500);
@@ -224,8 +229,9 @@ previousButton.addActionListener(e -> {
 });
 
         frame.setVisible(true);
+}
 
-    } // main終了
+
 
 
     // 指定された月のカレンダーを表示するメソッド

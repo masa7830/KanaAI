@@ -62,8 +62,25 @@ class User
             System.out.println("Kana:" + name + "、よろしくね！");
         }
 
-       
+       System.out.println("Kana:何する？");
+       System.out.println("Kana:1.Kanaと話す");
+       System.out.println("Kana:2.予定を見る");
+       System.out.println("Kana:3.終わる");
+
+       int choice =Integer.parseInt(br.readLine());
+
+        while (choice != 1 && choice != 2 && choice != 3) {
+
+            System.out.println("Kana:ごめん、よく分からなかった");
+            System.out.println("Kana:もう一度選んでね！");
+             System.out.println("Kana:1.Kanaと話す");
+       System.out.println("Kana:2.予定を見る");
+       System.out.println("Kana:3.終わる");
+
+       choice =  Integer.parseInt(br.readLine());
+        }
         
+        if(choice ==1){
         //今日の気分を聞く
         System.out.println("Kana:今日の気分はどう？");
         System.out.println("Kana:1. 元気！");
@@ -103,47 +120,49 @@ class User
         System.out.println("Kana:1.もう少し話をする");
         System.out.println("Kana:2.今日はもう帰る");
         
-        int choice = Integer.parseInt(br.readLine());
+        int talkChoice = Integer.parseInt(br.readLine());
         
 
         //1か2以外なら聞き返す
-        while (choice != 1 && choice != 2) {
+        while (talkChoice != 1 && talkChoice != 2) {
             System.out.println("Kana:ごめん、よく分からなかった");
             System.out.println("Kana:もう一度選んでね！");
             System.out.println("Kana:1.もう少し話をする");
             System.out.println("Kana:2.今日はもう帰る");
 
         //choiceを新しい入力で更新
-        choice = Integer.parseInt(br.readLine());
+       talkChoice = Integer.parseInt(br.readLine());
         }
        
         //帰ろうとしたら一度だけ引き留める
-        if (choice ==1){
+        if (talkChoice ==1){
             System.out.println("Kana:たくさん話そう");
         }
-        else if (choice == 2){
+        else if (talkChoice == 2){
             System.out.println("もうかえっちゃうの!?");
             System.out.println("Kana:1.やっぱりもう少し話す");
             System.out.println("Kana:2.うん、今日は帰る");
 
             //すでにchoice宣言済みなのでintはつけない
-            choice = Integer.parseInt(br.readLine());
+           talkChoice= Integer.parseInt(br.readLine());
 
             //1か2以外ならもう一度確認
-            while (choice != 1 && choice != 2) {
+            while (talkChoice != 1 && talkChoice != 2) {
                 System.out.println("Kana:ごめん、よく分からなかった");
                 System.out.println("Kana:もう一度選んでね！");
                 System.out.println("Kana:1.やっぱりもう少し話をする");
                 System.out.println("Kana:2.うん、今日はもう帰る");
                 
-                choice = Integer.parseInt(br.readLine());
+                talkChoice = Integer.parseInt(br.readLine());
+
+            
             }
         }
 
             //choiceが1の間会話を続ける
-            if (choice ==1){
+            if (talkChoice ==1){
             
-                 while (choice == 1) {
+                 while (talkChoice == 1) {
           
 
                     System.out.println("Kana:何を話す？");
@@ -170,10 +189,23 @@ class User
                     System.out.println("Kana:2.今日は帰る");
 
                     //1なら会話を続けて、2ならwhileを終了する
-                    choice = Integer.parseInt(br.readLine());
+                   talkChoice = Integer.parseInt(br.readLine());
             }
      }
+     if (talkChoice == 2)
+{
+    goodbye();
+}
+        
+    }
     
+    else if(choice ==2){
+        CalendarTest.openCalendar();
+    }
+    
+    else if(choice ==3){
+         goodbye();
+    }
            
          //mainメソッド終了 
         }
