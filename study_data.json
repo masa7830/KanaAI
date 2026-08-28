@@ -1,0 +1,19 @@
+{
+  "active_session": null,
+  "sessions": [
+    {
+      "category": "Python",
+      "start": "2026-08-29T03:55:56.512815",
+      "end": "2026-08-29T03:57:57.270428",
+      "seconds": 120.757613
+    },
+    {
+      "category": "Python",
+      "start": "2026-08-29T03:58:22.411143",
+      "end": "2026-08-29T05:10:16.180834",
+      "seconds": 4313.769691
+    }
+  ],
+  "progress": "",
+  "progress_logs": []
+}
