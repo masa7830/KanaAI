@@ -1,8 +1,13 @@
+from pathlib import Path
+
+DATA_FILE = Path(__file__).parent / "study_data.json"
+
+print("読み込み中のJSON:", DATA_FILE.resolve())
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
 
-DATA_FILE = Path("study_data.json")
+DATA_FILE = Path(__file__).parent / "study_data.json"
 
 WEEKLY_GOAL_HOURS = 12
 
@@ -21,22 +26,44 @@ def format_seconds(seconds):
     return f"{minutes}分"
 
 def load_data():
+    print("load_data:", DATA_FILE.resolve())
+
     if DATA_FILE.exists():
         text = DATA_FILE.read_text(encoding="utf-8")
+        print("JSONの中身:", text)
+
         data = json.loads(text)
 
         if "progress_logs" not in data:
             data["progress_logs"] = []
 
+        if "english_stamps" not in data:
+            data["english_stamps"] = []
+
         return data
+
+    print("study_data.json が見つかりません")
 
     return {
         "active_session": None,
         "sessions": [],
-        "progress_logs": []
+        "progress_logs": [],
+        "english_stamps": []
     }
 
 def save_data(data):
+    # 既存データがあればバックアップを作る
+    if DATA_FILE.exists():
+        backup_file = DATA_FILE.with_name("study_data_backup.json")
+
+        old_text = DATA_FILE.read_text(encoding="utf-8")
+
+        backup_file.write_text(
+            old_text,
+            encoding="utf-8"
+        )
+
+    # 新しいデータを保存
     text = json.dumps(
         data,
         ensure_ascii=False,
@@ -47,7 +74,6 @@ def save_data(data):
         text,
         encoding="utf-8"
     )
-
 
 def start_study(category):
     data = load_data()
@@ -86,22 +112,23 @@ def stop_study():
     }
 
     data["sessions"].append(finished_session)
+    #終了したセッションを履歴に追加
     data["active_session"] = None
-
+    #進行中のセッションを解除
     save_data(data)
-
+    #データをセーブ
     minutes = round(seconds / 60)
-
+    #秒を分に直す
     return f"お疲れさま！今日は{minutes}分進んだよ！"
-
+    #お疲れ様のメッセージを返す
 
 def get_today_seconds():
     data = load_data()
-
+    #データを読み込む
     today = datetime.now().date()
-
+    #今日の日付を確認する
     total = 0
-
+    #学習時間の合計を初期化する
     for session in data["sessions"]:
         start = datetime.fromisoformat(session["start"])
 
@@ -112,22 +139,26 @@ def get_today_seconds():
 
 
 def get_week_seconds():
+    
     data = load_data()
-
+    # 保存された学習データを読み込む
     today = datetime.now().date()
-
+    # 今日の日付を取得する
     monday = today - timedelta(days=today.weekday())
-
+    # 今日から今週の月曜日までの日数を引く
     total = 0
-
+    # 学習時間の合計を0で初期化する
     for session in data["sessions"]:
+    # 学習履歴を1件ずつ取り出す
         start = datetime.fromisoformat(session["start"])
-
+         # セッション開始日時を日時データに変換する
         if start.date() >= monday:
+             # 開始日が今週の月曜日以降か確認する
             total += session["seconds"]
+              # 条件に合う学習時間を加算する
 
     return total
-
+    # 合計した学習時間を秒単位で返す
 
 def save_progress(progress):
     data = load_data()
@@ -141,6 +172,24 @@ def save_progress(progress):
 
     save_data(data)
 
+def add_english_stamp(category):
+    data = load_data()
+
+    today = datetime.now().date().isoformat()
+
+    data["english_stamps"].append({
+        "date": today,
+        "category": category
+    })
+
+    save_data(data)
+
+def get_recent_english_stamps(limit=30):
+    data = load_data()
+
+    stamps = list(reversed(data["english_stamps"]))
+
+    return stamps[:limit]
 
 def get_dashboard():
     data = load_data()
@@ -176,7 +225,8 @@ def get_dashboard():
         "active_session": data["active_session"],
         "sessions": get_recent_sessions(),
         "progress_logs": get_recent_progress(),
-        "week_chart": get_week_chart()
+        "week_chart": get_week_chart(),
+        "english_stamps": get_recent_english_stamps(),
     }
 
 def get_recent_sessions(limit=10):
@@ -215,31 +265,59 @@ def get_week_chart():
 
     for i in range(7):
         date = monday + timedelta(days=i)
-        total_seconds = 0
+
+        programming_seconds = 0
+        toeic_seconds = 0
 
         for session in data["sessions"]:
             start = datetime.fromisoformat(session["start"])
 
             if start.date() == date:
-                total_seconds += session["seconds"]
+
+                if session["category"] == "TOEIC":
+                    toeic_seconds += session["seconds"]
+
+                else:
+                    programming_seconds += session["seconds"]
+
+        programming_minutes = int(programming_seconds // 60)
+        toeic_minutes = int(toeic_seconds // 60)
 
         chart.append({
             "day": day_names[i],
-            "minutes": int(total_seconds // 60)
+            "programming_minutes": programming_minutes,
+            "toeic_minutes": toeic_minutes
         })
 
     max_minutes = max(
-        [day["minutes"] for day in chart],
+        [
+            max(
+                day["programming_minutes"],
+                day["toeic_minutes"]
+            )
+            for day in chart
+        ],
         default=0
     )
 
     for day in chart:
+
         if max_minutes > 0:
-         day["height"] = int(
-    day["minutes"] / max_minutes * 100
-)
-            
+
+            day["programming_height"] = int(
+                day["programming_minutes"]
+                / max_minutes
+                * 100
+            )
+
+            day["toeic_height"] = int(
+                day["toeic_minutes"]
+                / max_minutes
+                * 100
+            )
+
         else:
-            day["height"] = 0
+            day["programming_height"] = 0
+            day["toeic_height"] = 0
 
     return chart

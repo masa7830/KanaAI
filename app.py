@@ -6,10 +6,24 @@ from study import (
     start_study,
     stop_study,
     save_progress,
-    get_dashboard
+    get_dashboard,
+    add_english_stamp
 )
 
 app = Flask(__name__)
+
+
+@app.route("/english/stamp", methods=["POST"])
+def english_stamp():
+
+    category = request.form.get(
+        "category",
+        "単語帳"
+    )
+
+    add_english_stamp(category)
+
+    return redirect(url_for("home"))
 
 
 @app.route("/", methods=["GET", "POST"])

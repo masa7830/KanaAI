@@ -1,0 +1,17 @@
+{
+    "home_budget": 150,
+    "outing_budget": 500,
+    "gohoubi": -100,
+    "records": {
+        "2026-09-12": {
+            "budget": 150,
+            "spending": 100,
+            "change": 50
+        },
+        "2026-09-13": {
+            "budget": 150,
+            "spending": 100,
+            "change": 50
+        }
+    }
+}

@@ -172,6 +172,17 @@
             margin-top: 25px;
             font-weight: bold;
         }
+        .programming-bar {
+    background: #888;
+}
+
+.toeic-bar {
+    background: #4a90e2;
+}
+
+.bar-track {
+    gap: 4px;
+}
     </style>
 </head>
 
@@ -227,31 +238,39 @@
 
         <div class="chart">
 
-            {% for day in dashboard.week_chart %}
+    {% for day in dashboard.week_chart %}
 
-            <div class="bar-area">
+    <div class="bar-area">
 
-                <div class="minutes">
-                    {{ day.minutes }}分
-                </div>
+        <div class="minutes">
+            P {{ day.programming_minutes }}分
+            <br>
+            E {{ day.toeic_minutes }}分
+        </div>
 
-                <div class="bar-track">
-                    <div
-                        class="bar"
-                        style="height: {{ day.height }}px;">
-                    </div>
-                </div>
+        <div class="bar-track">
 
-                <div class="day">
-                    {{ day.day }}
-                </div>
-
+            <div
+                class="bar programming-bar"
+                style="height: {{ day.programming_height }}px;">
             </div>
 
-            {% endfor %}
+            <div
+                class="bar toeic-bar"
+                style="height: {{ day.toeic_height }}px;">
+            </div>
 
         </div>
+
+        <div class="day">
+            {{ day.day }}
+        </div>
+
     </div>
+
+    {% endfor %}
+
+</div>
 
 
     <div class="card">
@@ -281,6 +300,7 @@
                 <option>Java</option>
                 <option>基本情報</option>
                 <option>Kana開発</option>
+                 <option>TOEIC</option>
             </select>
 
             <button type="submit">
@@ -363,6 +383,34 @@
         {% endif %}
     </div>
 
+    <h2>English Stamp</h2>
+
+<form action="/english/stamp" method="POST">
+
+    <select name="category">
+        <option value="単語帳">単語帳</option>
+        <option value="TOEIC">TOEIC</option>
+        <option value="リスニング">リスニング</option>
+        <option value="技術英語">技術英語</option>
+    </select>
+
+    <button type="submit">
+        スタンプ！
+    </button>
+
+    <h3>最近の英語学習</h3>
+
+{% for stamp in dashboard.english_stamps %}
+
+    <div>
+        ⭐ {{ stamp.date }}
+        {{ stamp.category }}
+    </div>
+
+{% endfor %}
+
+</form>
+
 
     <div class="card">
         <h2>Kanaと話す</h2>
@@ -442,32 +490,45 @@
 
         <h3>今週の学習</h3>
 
-        <div class="share-chart">
+<p>
+    ■ プログラミング　■ TOEIC
+</p>
 
-            {% for day in dashboard.week_chart %}
+<div class="share-chart">
 
-            <div class="share-bar-area">
+    {% for day in dashboard.week_chart %}
 
-                <div class="share-minutes">
-                    {{ day.minutes }}分
-                </div>
+    <div class="share-bar-area">
 
-                <div class="share-bar-track">
-                    <div
-                        class="share-bar"
-                        style="height: {{ day.height }}px;">
-                    </div>
-                </div>
+        <div class="share-minutes">
+            P {{ day.programming_minutes }}分
+            <br>
+            E {{ day.toeic_minutes }}分
+        </div>
 
-                <div>
-                    {{ day.day }}
-                </div>
+        <div class="share-bar-track">
 
+            <div
+                class="share-bar programming-bar"
+                style="height: {{ day.programming_height }}px;">
             </div>
 
-            {% endfor %}
+            <div
+                class="share-bar toeic-bar"
+                style="height: {{ day.toeic_height }}px;">
+            </div>
 
         </div>
+
+        <div>
+            {{ day.day }}
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
 
 
         <h3>最近の進捗</h3>
