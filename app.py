@@ -38,7 +38,8 @@ def home():
         reply = get_reply(message)
 
     dashboard = get_dashboard()
-
+    #ダッシュボードから受け取ってHTMLに渡す
+    
     return render_template(
         "index.html",
         reply=reply,

@@ -278,11 +278,28 @@
 
         {% if dashboard.studying %}
 
-        <p>
-            Kana: 今、
-            {{ dashboard.active_session.category }}
-            を勉強中だよ！
-        </p>
+       
+<p>
+    Kana: 今、
+    {{ dashboard.active_session.category }}
+    を勉強中だよ！
+</p>
+
+<div
+    id="study-timer"
+    data-start="{{ dashboard.active_session.start }}"
+    data-mode="{{ dashboard.active_session.mode }}"
+    data-target="{{ dashboard.active_session.target_seconds }}"
+>
+    <h2 id="timer-label">経過時間</h2>
+    <h1 id="timer-display">00:00:00</h1>
+    <button type="button" id="enable-sound">
+    音を有効にする
+</button>
+
+<p id="sound-status">終了音は無効です</p>
+</div>
+
 
         <form action="/study/stop" method="POST">
             <button type="submit">
@@ -311,6 +328,7 @@
     </select>
 
     <select name="target_seconds">
+        <option value="10">10秒テスト</option>
         <option value="900">15分</option>
         <option value="1800">30分</option>
         <option value="2700">45分</option>
@@ -604,21 +622,148 @@
 
     </div>
     
+
 <script>
+    // カウントダウンの設定欄を表示・非表示にする
     const modeSelect = document.querySelector('select[name="mode"]');
     const targetSelect = document.querySelector('select[name="target_seconds"]');
 
     function updateTargetVisibility() {
-        if (modeSelect.value === "countdown") {
-            targetSelect.style.display = "block";
-        } else {
-            targetSelect.style.display = "none";
+        if (modeSelect && targetSelect) {
+            if (modeSelect.value === "countdown") {
+                targetSelect.style.display = "block";
+            } else {
+                targetSelect.style.display = "none";
+            }
         }
     }
 
-    modeSelect.addEventListener("change", updateTargetVisibility);
+    if (modeSelect) {
+        modeSelect.addEventListener("change", updateTargetVisibility);
+        updateTargetVisibility();
+    }
 
-    updateTargetVisibility();
+    // タイマーの表示を更新する
+    const timer = document.querySelector("#study-timer");
+
+   
+if (timer) {
+    const startTime = new Date(timer.dataset.start).getTime();
+    const mode = timer.dataset.mode;
+    const targetSeconds = Number(timer.dataset.target);
+
+    const timerLabel = document.querySelector("#timer-label");
+    const timerDisplay = document.querySelector("#timer-display");
+
+    // 音声の準備
+    const soundButton = document.querySelector("#enable-sound");
+    const soundStatus = document.querySelector("#sound-status");
+
+    let audioContext = null;
+    let soundEnabled = false;
+
+    // 開始時点の残り時間を記録
+    let previousRemaining = targetSeconds - Math.floor(
+        (Date.now() - startTime) / 1000
+    );
+
+    // ボタンを押したら音声を有効にする
+    if (soundButton) {
+        soundButton.addEventListener("click", async function () {
+            if (!audioContext) {
+                audioContext = new (
+                    window.AudioContext || window.webkitAudioContext
+                )();
+            }
+
+            await audioContext.resume();
+
+            soundEnabled = true;
+            soundStatus.textContent = "終了音が有効だよ！";
+        });
+    }
+
+    // 終了音を鳴らす
+    function playEndSound() {
+        if (!audioContext || !soundEnabled) {
+            return;
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.frequency.value = 880;
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(
+            0.25,
+            audioContext.currentTime + 0.03
+        );
+        gain.gain.exponentialRampToValueAtTime(
+    0.0001,
+    audioContext.currentTime + 1.5
+);
+
+oscillator.start();
+oscillator.stop(audioContext.currentTime + 1.5);
+    }
+
+    function formatTime(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+
+        return (
+            String(hours).padStart(2, "0") + ":" +
+            String(minutes).padStart(2, "0") + ":" +
+            String(secs).padStart(2, "0")
+        );
+    }
+
+    function updateTimer() {
+        const now = Date.now();
+
+        const elapsedSeconds = Math.floor(
+            (now - startTime) / 1000
+        );
+
+        if (mode === "countdown") {
+            const remainingSeconds = targetSeconds - elapsedSeconds;
+
+            // 0秒になった瞬間に一度だけ鳴らす
+            if (
+                previousRemaining > 0 &&
+                remainingSeconds <= 0 &&
+                soundEnabled
+            ) {
+                playEndSound();
+            }
+
+            previousRemaining = remainingSeconds;
+
+            if (remainingSeconds > 0) {
+                timerLabel.textContent = "残り時間";
+                timerDisplay.textContent = formatTime(remainingSeconds);
+            } else {
+                timerLabel.textContent = "超過時間";
+                timerDisplay.textContent = formatTime(
+                    elapsedSeconds - targetSeconds
+                );
+            }
+        } else {
+            timerLabel.textContent = "経過時間";
+            timerDisplay.textContent = formatTime(elapsedSeconds);
+        }
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+}
+
 </script>
+
 </body>
 </html>
