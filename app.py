@@ -49,12 +49,13 @@ def home():
 @app.route("/study/start", methods=["POST"])
 def study_start():
 
-    category = request.form.get(
-        "category",
-        "Kana開発"
-    )
+    category = request.form.get("category", "Kana開発")
+    mode = request.form.get("mode", "countup")
+    target_seconds = request.form.get("target_seconds", 0)
 
-    start_study(category)
+    target_seconds = int(target_seconds)
+    #読み込んだ文字列を整数に変換
+    start_study(category,mode,target_seconds)
 
     return redirect(url_for("home"))
 

@@ -75,7 +75,7 @@ def save_data(data):
         encoding="utf-8"
     )
 
-def start_study(category):
+def start_study(category, mode, target_seconds):
     data = load_data()
 
     if data["active_session"] is not None:
@@ -83,7 +83,9 @@ def start_study(category):
 
     data["active_session"] = {
         "category": category,
-        "start": datetime.now().isoformat()
+        "start": datetime.now().isoformat(),
+        "mode": mode,
+        "target_seconds": target_seconds
     }
 
     save_data(data)

@@ -292,22 +292,41 @@
 
         {% else %}
 
-        <form action="/study/start" method="POST">
+<form action="/study/start" method="POST">
 
-            <select name="category">
-                <option>Python</option>
-                <option>Flask</option>
-                <option>Java</option>
-                <option>基本情報</option>
-                <option>Kana開発</option>
-                 <option>TOEIC</option>
-            </select>
+    <select name="category">
+        <option>Python</option>
+        <option>Flask</option>
+        <option>Java</option>
+        <option>基本情報</option>
+        <option>Kana開発</option>
+        <option>TOEIC</option>
+    </select>
 
-            <button type="submit">
-                勉強開始
-            </button>
+    <!-- ここから追加 -->
 
-        </form>
+    <select name="mode">
+        <option value="countup">カウントアップ</option>
+        <option value="countdown">カウントダウン</option>
+    </select>
+
+    <select name="target_seconds">
+        <option value="900">15分</option>
+        <option value="1800">30分</option>
+        <option value="2700">45分</option>
+        <option value="3600">60分</option>
+        <option value="4500">75分</option>
+        <option value="5400">90分</option>
+        <option value="7200">120分</option>
+    </select>
+
+    
+
+    <button type="submit">
+        勉強開始
+    </button>
+
+</form>
 
         {% endif %}
     </div>
@@ -584,6 +603,22 @@
         </p>
 
     </div>
+    
+<script>
+    const modeSelect = document.querySelector('select[name="mode"]');
+    const targetSelect = document.querySelector('select[name="target_seconds"]');
 
+    function updateTargetVisibility() {
+        if (modeSelect.value === "countdown") {
+            targetSelect.style.display = "block";
+        } else {
+            targetSelect.style.display = "none";
+        }
+    }
+
+    modeSelect.addEventListener("change", updateTargetVisibility);
+
+    updateTargetVisibility();
+</script>
 </body>
 </html>
