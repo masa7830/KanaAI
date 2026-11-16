@@ -7,15 +7,17 @@ from study import (
     stop_study,
     save_progress,
     get_dashboard,
-    add_english_stamp
+    add_english_stamp,
+    add_manual_study
 )
 
 app = Flask(__name__)
 
 
 @app.route("/english/stamp", methods=["POST"])
+#URLを登録する
 def english_stamp():
-
+#関数を実行する
     category = request.form.get(
         "category",
         "単語帳"
@@ -77,6 +79,24 @@ def study_progress():
 
     return redirect(url_for("home"))
 
+@app.route("/study/manual", methods=["POST"])
+def study_manual():
+
+    category = request.form.get("category", "Python")
+    minutes = request.form.get("minutes", "")
+    #フォームから値を受け取る
+    try:
+        minutes = int(minutes)
+
+        if minutes <= 0:
+            return redirect(url_for("home"))
+        #0以下なら終了してトップページに戻る
+    except ValueError:
+        return redirect(url_for("home"))
+        #エラーならトップページに戻る
+    add_manual_study(category, minutes)
+    #学習履歴に追加
+    return redirect(url_for("home"))
 
 if __name__ == "__main__":
     app.run(debug=True)

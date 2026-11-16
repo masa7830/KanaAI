@@ -121,7 +121,27 @@ def stop_study():
     #秒を分に直す
     return f"お疲れさま！今日は{minutes}分進んだよ！"
     #お疲れ様のメッセージを返す
+def add_manual_study(category, minutes):
 
+    data = load_data()
+    #保存済みの学習データを読み込む
+    seconds = minutes * 60
+
+    now = datetime.now()
+
+    session = {
+        "category": category,
+        "start": now.isoformat(),
+        "end": now.isoformat(),
+        "seconds": seconds
+       }
+    #学習記録を作る開始と終了は現在時刻
+
+    data["sessions"].append(session)
+    #学習リストを取り出し今回の学習リストを追加する
+    save_data(data)
+    #ファイルに保存する
+    return f"{category}を{minutes}分記録したよ！"
 def get_today_seconds():
     data = load_data()
     #データを読み込む
@@ -130,8 +150,9 @@ def get_today_seconds():
     total = 0
     #学習時間の合計を初期化する
     for session in data["sessions"]:
+    # 学習履歴を1件ずつ取り出す
         start = datetime.fromisoformat(session["start"])
-
+        # セッション開始日時を日時データに変換する
         if start.date() == today:
             total += session["seconds"]
 
@@ -154,6 +175,30 @@ def get_week_seconds():
          # セッション開始日時を日時データに変換する
         if start.date() >= monday:
              # 開始日が今週の月曜日以降か確認する
+            total += session["seconds"]
+              # 条件に合う学習時間を加算する
+
+    return total
+    # 合計した学習時間を秒単位で返す
+
+def get_last_week_seconds():
+    
+    data = load_data()
+    # 保存された学習データを読み込む
+    today = datetime.now().date()
+    # 今日の日付を取得する
+    monday = today - timedelta(days=today.weekday())
+    # 今日から今週の月曜日までの日数を引く
+    last_monday = monday - timedelta(days=7)
+    #今週の月曜日から7日もどる
+    total = 0
+    # 学習時間の合計を0で初期化する
+    for session in data["sessions"]:
+    # 学習履歴を1件ずつ取り出す
+        start = datetime.fromisoformat(session["start"])
+         # セッション開始日時を日時データに変換する
+        if start.date() >= last_monday and start.date()< monday:
+             # 先週の月曜日以降で今週の月曜日より前か
             total += session["seconds"]
               # 条件に合う学習時間を加算する
 
