@@ -385,10 +385,33 @@ def get_week_chart():
         programming_minutes = int(programming_seconds // 60)
         toeic_minutes = int(toeic_seconds // 60)
 
+         # 今日より未来の日付なら「－」にする
+        if date > today:
+            toeic_status = "－"
+
+         #今日未入力なら「－」にする
+        elif date == today and toeic_seconds == 0:
+            toeic_status = "－"
+
+         # 昨日まで、TOEICの学習時間が0秒なら「×」にする
+        elif date < today and toeic_seconds == 0:
+            toeic_status = "×"
+
+         # TOEICの学習時間が3600秒以上なら「◎」にする
+
+        elif toeic_seconds >= 3600:
+            toeic_status = "◎"
+
+         # TOEICの学習時間が0秒より大きければ「○」にする
+
+        else:
+            toeic_status = "○"
+        
         chart.append({
             "day": day_names[i],
             "programming_minutes": programming_minutes,
-            "toeic_minutes": toeic_minutes
+            "toeic_minutes": toeic_minutes,
+            "toeic_status": toeic_status
         })
 
     max_minutes = max(
