@@ -5,6 +5,9 @@ from kana import get_reply
 from study import (
     start_study,
     stop_study,
+    pause_study,
+    resume_study,
+    reset_study,
     save_progress,
     get_dashboard,
     add_english_stamp,
@@ -65,6 +68,29 @@ def study_start():
 def study_stop():
 
     stop_study()
+
+    return redirect(url_for("home"))
+
+@app.route("/study/pause", methods=["POST"])
+def study_pause():
+
+    pause_study()
+
+    return redirect(url_for("home"))
+
+
+@app.route("/study/resume", methods=["POST"])
+def study_resume():
+
+    resume_study()
+
+    return redirect(url_for("home"))
+
+
+@app.route("/study/reset", methods=["POST"])
+def study_reset():
+
+    reset_study()
 
     return redirect(url_for("home"))
 

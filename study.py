@@ -85,12 +85,66 @@ def start_study(category, mode, target_seconds):
         "category": category,
         "start": datetime.now().isoformat(),
         "mode": mode,
-        "target_seconds": target_seconds
+        "target_seconds": target_seconds,
+        "elapsed_seconds": 0,
+        "paused": False,
+        "original_start": datetime.now().isoformat()
     }
 
     save_data(data)
 
     return f"{category}の勉強開始！"
+
+def pause_study():
+    data = load_data()
+
+    session = data["active_session"]
+    if session is None or session.get("paused", False):
+        return "一時停止できないよ"
+
+    start = datetime.fromisoformat(session["start"])
+    now = datetime.now()
+
+    elapsed = (now - start).total_seconds()
+
+    session["elapsed_seconds"] = session.get("elapsed_seconds", 0) + elapsed
+    session["paused"] = True
+
+    save_data(data)
+
+    return "一時停止したよ！"
+
+def resume_study():
+    data = load_data()
+
+    session = data["active_session"]
+
+    if session is None or not session.get("paused", False):
+        return "再開できないよ"
+
+    session["start"] = datetime.now().isoformat()
+    session["paused"] = False
+
+    save_data(data)
+
+    return "勉強を再開したよ！"
+
+def reset_study():
+    data = load_data()
+
+    session = data["active_session"]
+
+    if session is None:
+        return "リセットできないよ"
+
+    session["start"] = datetime.now().isoformat()
+    session["original_start"] = session["start"]
+    session["elapsed_seconds"] = 0
+    session["paused"] = False
+
+    save_data(data)
+
+    return "タイマーをリセットしたよ！"
 
 
 def stop_study():
@@ -101,28 +155,30 @@ def stop_study():
     if session is None:
         return "今は勉強中じゃないよ"
 
-    start = datetime.fromisoformat(session["start"])
     end = datetime.now()
 
-    seconds = (end - start).total_seconds()
+    seconds = session.get("elapsed_seconds", 0)
+
+    if not session.get("paused", False):
+        start = datetime.fromisoformat(session["start"])
+        seconds += (end - start).total_seconds()
 
     finished_session = {
         "category": session["category"],
-        "start": session["start"],
+        "start": session.get("original_start", session["start"]),
         "end": end.isoformat(),
         "seconds": seconds
     }
 
     data["sessions"].append(finished_session)
-    #終了したセッションを履歴に追加
     data["active_session"] = None
-    #進行中のセッションを解除
+
     save_data(data)
-    #データをセーブ
+
     minutes = round(seconds / 60)
-    #秒を分に直す
+
     return f"お疲れさま！今日は{minutes}分進んだよ！"
-    #お疲れ様のメッセージを返す
+
 def add_manual_study(category, minutes):
 
     data = load_data()
@@ -175,11 +231,10 @@ def get_week_seconds():
     # 学習履歴を1件ずつ取り出す
         start = datetime.fromisoformat(session["start"])
          # セッション開始日時を日時データに変換する
-        if start.date() >= monday:
-             # 開始日が今週の月曜日以降か確認する
+        if start.date() >= monday and session["category"] != "TOEIC":
+        #月曜日以降でカテゴリがTOEICでない場合  
             total += session["seconds"]
-              # 条件に合う学習時間を加算する
-
+            #秒数を加算
     return total
     # 合計した学習時間を秒単位で返す
 

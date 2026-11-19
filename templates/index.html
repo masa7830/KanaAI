@@ -290,6 +290,8 @@
     data-start="{{ dashboard.active_session.start }}"
     data-mode="{{ dashboard.active_session.mode }}"
     data-target="{{ dashboard.active_session.target_seconds }}"
+    data-elapsed="{{ dashboard.active_session.elapsed_seconds }}"
+    data-paused="{{ dashboard.active_session.paused | lower }}"
 >
     <h2 id="timer-label">経過時間</h2>
     <h1 id="timer-display">00:00:00</h1>
@@ -300,23 +302,37 @@
 <p id="sound-status">終了音は無効です</p>
 </div>
 
+{% if dashboard.active_session.paused %}
 
-        <form action="/study/stop" method="POST">
-            <button type="submit">
-                勉強終了
-            </button>
-        </form>
+    <form action="/study/resume" method="POST">
+        <button type="submit">再開</button>
+    </form>
 
+{% else %}
+
+    <form action="/study/pause" method="POST">
+        <button type="submit">一時停止</button>
+    </form>
+
+{% endif %}
+
+<form action="/study/reset" method="POST">
+    <button type="submit">リセット</button>
+</form>
+
+<form action="/study/stop" method="POST">
+    <button type="submit">勉強終了</button>
+</form>
         {% else %}
 
 <form action="/study/start" method="POST">
 
-    <select name="category">
+    <="category">
         <option>Python</option>
         <option>Flask</option>
         <option>Java</option>
         <option>基本情報</option>
-        <option>Kana開発</option>
+        <option>Kana開発</optselect nameion>
         <option>TOEIC</option>
     </select>
 
@@ -623,6 +639,7 @@
     </div>
     
 
+
 <script>
     // カウントダウンの設定欄を表示・非表示にする
     const modeSelect = document.querySelector('select[name="mode"]');
@@ -630,11 +647,8 @@
 
     function updateTargetVisibility() {
         if (modeSelect && targetSelect) {
-            if (modeSelect.value === "countdown") {
-                targetSelect.style.display = "block";
-            } else {
-                targetSelect.style.display = "none";
-            }
+            targetSelect.style.display =
+                modeSelect.value === "countdown" ? "block" : "none";
         }
     }
 
@@ -646,124 +660,118 @@
     // タイマーの表示を更新する
     const timer = document.querySelector("#study-timer");
 
-   
-if (timer) {
-    const startTime = new Date(timer.dataset.start).getTime();
-    const mode = timer.dataset.mode;
-    const targetSeconds = Number(timer.dataset.target);
+    if (timer) {
+        const startTime = new Date(timer.dataset.start).getTime();
+        const mode = timer.dataset.mode;
+        const targetSeconds = Number(timer.dataset.target);
+        const savedElapsed = Number(timer.dataset.elapsed || 0);
+        const isPaused = timer.dataset.paused === "true";
 
-    const timerLabel = document.querySelector("#timer-label");
-    const timerDisplay = document.querySelector("#timer-display");
+        const timerLabel = document.querySelector("#timer-label");
+        const timerDisplay = document.querySelector("#timer-display");
+        const soundButton = document.querySelector("#enable-sound");
+        const soundStatus = document.querySelector("#sound-status");
 
-    // 音声の準備
-    const soundButton = document.querySelector("#enable-sound");
-    const soundStatus = document.querySelector("#sound-status");
+        let audioContext = null;
+        let soundEnabled = false;
+        let previousRemaining = targetSeconds - savedElapsed;
 
-    let audioContext = null;
-    let soundEnabled = false;
+        if (soundButton) {
+            soundButton.addEventListener("click", async function () {
+                if (!audioContext) {
+                    audioContext = new (
+                        window.AudioContext || window.webkitAudioContext
+                    )();
+                }
 
-    // 開始時点の残り時間を記録
-    let previousRemaining = targetSeconds - Math.floor(
-        (Date.now() - startTime) / 1000
-    );
+                await audioContext.resume();
+                soundEnabled = true;
 
-    // ボタンを押したら音声を有効にする
-    if (soundButton) {
-        soundButton.addEventListener("click", async function () {
-            if (!audioContext) {
-                audioContext = new (
-                    window.AudioContext || window.webkitAudioContext
-                )();
-            }
-
-            await audioContext.resume();
-
-            soundEnabled = true;
-            soundStatus.textContent = "終了音が有効だよ！";
-        });
-    }
-
-    // 終了音を鳴らす
-    function playEndSound() {
-        if (!audioContext || !soundEnabled) {
-            return;
+                if (soundStatus) {
+                    soundStatus.textContent = "終了音が有効だよ！";
+                }
+            });
         }
 
-        const oscillator = audioContext.createOscillator();
-        const gain = audioContext.createGain();
+        function playEndSound() {
+            if (!audioContext || !soundEnabled) return;
 
-        oscillator.frequency.value = 880;
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
 
-        oscillator.connect(gain);
-        gain.connect(audioContext.destination);
+            oscillator.frequency.value = 880;
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
 
-        gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(
-            0.25,
-            audioContext.currentTime + 0.03
-        );
-        gain.gain.exponentialRampToValueAtTime(
-    0.0001,
-    audioContext.currentTime + 1.5
-);
+            gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(
+                0.25, audioContext.currentTime + 0.03
+            );
+            gain.gain.exponentialRampToValueAtTime(
+                0.0001, audioContext.currentTime + 1.5
+            );
 
-oscillator.start();
-oscillator.stop(audioContext.currentTime + 1.5);
-    }
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 1.5);
+        }
 
-    function formatTime(seconds) {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
+        function formatTime(seconds) {
+            seconds = Math.max(0, Math.floor(seconds));
 
-        return (
-            String(hours).padStart(2, "0") + ":" +
-            String(minutes).padStart(2, "0") + ":" +
-            String(secs).padStart(2, "0")
-        );
-    }
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
 
-    function updateTimer() {
-        const now = Date.now();
+            return (
+                String(hours).padStart(2, "0") + ":" +
+                String(minutes).padStart(2, "0") + ":" +
+                String(secs).padStart(2, "0")
+            );
+        }
 
-        const elapsedSeconds = Math.floor(
-            (now - startTime) / 1000
-        );
+        function updateTimer() {
+            const currentElapsed = isPaused
+                ? 0
+                : Math.floor((Date.now() - startTime) / 1000);
 
-        if (mode === "countdown") {
-            const remainingSeconds = targetSeconds - elapsedSeconds;
+            const elapsedSeconds = savedElapsed + currentElapsed;
 
-            // 0秒になった瞬間に一度だけ鳴らす
-            if (
-                previousRemaining > 0 &&
-                remainingSeconds <= 0 &&
-                soundEnabled
-            ) {
-                playEndSound();
-            }
+            if (mode === "countdown") {
+                const remainingSeconds = targetSeconds - elapsedSeconds;
 
-            previousRemaining = remainingSeconds;
+                if (
+                    previousRemaining > 0 &&
+                    remainingSeconds <= 0 &&
+                    soundEnabled
+                ) {
+                    playEndSound();
+                }
 
-            if (remainingSeconds > 0) {
-                timerLabel.textContent = "残り時間";
-                timerDisplay.textContent = formatTime(remainingSeconds);
+                previousRemaining = remainingSeconds;
+
+                if (remainingSeconds > 0) {
+                    timerLabel.textContent = "残り時間";
+                    timerDisplay.textContent = formatTime(remainingSeconds);
+                } else {
+                    timerLabel.textContent = "超過時間";
+                    timerDisplay.textContent = formatTime(
+                        elapsedSeconds - targetSeconds
+                    );
+                }
             } else {
-                timerLabel.textContent = "超過時間";
-                timerDisplay.textContent = formatTime(
-                    elapsedSeconds - targetSeconds
-                );
+                timerLabel.textContent = "経過時間";
+                timerDisplay.textContent = formatTime(elapsedSeconds);
             }
-        } else {
-            timerLabel.textContent = "経過時間";
-            timerDisplay.textContent = formatTime(elapsedSeconds);
+        }
+
+        updateTimer();
+
+        if (!isPaused) {
+            setInterval(updateTimer, 1000);
         }
     }
-
-    updateTimer();
-    setInterval(updateTimer, 1000);
-}
-
 </script>
+
 
 </body>
 </html>
